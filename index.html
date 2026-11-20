@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7b6be0">
+<title>Tarefas e Pumpuns</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%A0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo" id="hdr-emoji">🏠</div>
+  <div class="brand">
+    <h1 id="hdr-title">Tarefas da casa</h1>
+    <small id="hdr-sub"></small>
+  </div>
+</header>
+
+<main>
+  <p class="warn" id="warn-load" hidden></p>
+  <p class="warn" id="warn-storage" hidden>⚠️ Este navegador não permite salvar dados.</p>
+
+  <!-- Nome e data -->
+  <section class="card">
+    <label class="field"><span>Nome</span>
+      <input id="f-name" type="text" autocomplete="off" maxlength="20" placeholder="Seu nome"></label>
+    <label class="field"><span>Data</span>
+      <input id="f-date" type="date"></label>
+    <div class="progress"><div class="bar"><i id="bar-fill"></i></div><b id="progress-text"></b></div>
+    <p class="cheer" id="cheer" hidden></p>
+  </section>
+
+  <!-- Abas -->
+  <nav class="tabs" aria-label="Listas">
+    <button type="button" data-action="tab" data-v="tarefas">🏠 Tarefas</button>
+    <button type="button" data-action="tab" data-v="pumpuns">🐱 Pumpuns</button>
+  </nav>
+
+  <!-- Lista -->
+  <section class="card">
+    <div class="card-title">
+      <h2 id="list-title"></h2>
+      <button type="button" class="btn small" data-action="add">
+        <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Nova
+      </button>
+    </div>
+    <div id="list"></div>
+    <p class="empty" id="list-empty" hidden></p>
+  </section>
+
+  <button type="button" class="btn primary block big" data-action="report">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg> Gerar relatório
+  </button>
+  <button type="button" class="btn block" id="btn-reset" data-action="reset-day" hidden>Limpar marcações deste dia</button>
+</main>
+
+<!-- Modelo de uma tarefa da lista (o JS só copia e preenche) -->
+<template id="tpl-group">
+  <h3 class="group-h"></h3>
+</template>
+<template id="tpl-task">
+  <div class="task">
+    <button type="button" class="task-main" data-action="toggle">
+      <span class="em"></span>
+      <span class="nm"><span class="nm-text"></span><span class="tag" hidden>só hoje</span></span>
+      <span class="tick" aria-hidden="true">✓</span>
+    </button>
+    <button type="button" class="icon-btn del" data-action="del-extra" hidden>
+      <svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>
+    </button>
+  </div>
+</template>
+
+<!-- Diálogo: nova tarefa -->
+<dialog class="sheet" id="dlg-add">
+  <form class="dlg-body" novalidate>
+    <h2 id="add-title">Nova tarefa</h2>
+    <div class="row2">
+      <label class="field"><span>Emoji</span>
+        <input name="icon" type="text" autocomplete="off" maxlength="4" style="text-align:center;font-size:1.4rem"></label>
+      <label class="field"><span>Nome</span>
+        <input name="name" type="text" autocomplete="off" required placeholder="Ex.: Regar as plantas"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="always"> Manter todos os dias nesta lista</label>
+    <p class="hint" id="add-hint"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="close">Cancelar</button>
+      <button class="btn primary">Adicionar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Diálogo: confirmar -->
+<dialog class="sheet" id="dlg-confirm">
+  <div class="dlg-body">
+    <h2>Confirmar</h2>
+    <p id="confirm-msg"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="close">Cancelar</button>
+      <button type="button" class="btn danger" id="confirm-ok">Remover</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Diálogo: relatório -->
+<dialog class="sheet" id="dlg-report">
+  <div class="dlg-body">
+    <h2 id="report-title">Relatório</h2>
+    <!-- Só na aba Pumpuns. Para trocar a foto: salve a imagem como assets/img/pumpuns.jpg -->
+    <figure class="photo" id="report-photo" hidden>
+      <img id="photo-img" src="assets/img/pumpuns.png" alt="Foto dos Pumpuns">
+      <figcaption>Obrigado por cuidar de mim! 🐾</figcaption>
+    </figure>
+    <textarea class="report-box" id="report-text" spellcheck="false"></textarea>
+    <p class="hint">Você pode ajustar o texto antes de copiar.</p>
+    <div class="dlg-actions">
+      <button type="button" class="btn" data-action="close">Fechar</button>
+      <button type="button" class="btn" id="btn-copy" data-action="copy-report">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copiar</span>
+      </button>
+      <button type="button" class="btn primary" data-action="share-report">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg> Enviar
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<audio id="thanks-audio" src="assets/audios/obrigada.mp3" preload="auto"></audio>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

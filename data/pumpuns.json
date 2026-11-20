@@ -1,0 +1,9 @@
+{
+  "tarefas": [
+    { "nome": "Limpar cocô",     "icone": "💩", "grupo": "Caixinha" },
+    { "nome": "Trocar areia",    "icone": "🏖️", "grupo": "Caixinha" },
+    { "nome": "Lavar os potes",  "icone": "🧼", "grupo": "Comidinha" },
+    { "nome": "Trocar a água",   "icone": "💧", "grupo": "Comidinha" },
+    { "nome": "Colocar sachê",   "icone": "🐟", "grupo": "Comidinha" }
+  ]
+}
