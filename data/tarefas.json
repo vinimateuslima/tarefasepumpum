@@ -2,7 +2,7 @@
   "tarefas": [
     { "nome": "Limpar a mesa",           "icone": "🪑", "grupo": "Cozinha e sala" },
     { "nome": "Lavar os pratos",         "icone": "🍽️", "grupo": "Cozinha e sala" },
-    { "nome": "Limpar o fogão",         "icone": "🍽️", "grupo": "Cozinha e sala" },
+    { "nome": "Limpar o fogão",         "icone": "🎛️", "grupo": "Cozinha e sala" },
     { "nome": "Encher as garrafas",      "icone": "🧴", "grupo": "Cozinha e sala" },
     { "nome": "Limpar o sofá",           "icone": "🛋️", "grupo": "Cozinha e sala" },
     { "nome": "Tirar os lixos",          "icone": "🗑️", "grupo": "Lixo" },
